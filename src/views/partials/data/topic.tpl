@@ -31,3 +31,25 @@
     </div>
 
 </div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.reaction').on('click', function() {
+            var reaction = $(this).data('reaction');  // Get the reaction type
+            var postId = $(this).data('pid');          // Get the post ID
+
+            // Send the reaction data to the server
+            $.post('/api/post/' + postId + '/reaction', { reaction: reaction }, function(response) {
+                if (response.success) {
+                    // Update the reaction count on success
+                    var countElem = $('#count-' + reaction + '-' + postId);
+                    countElem.text(parseInt(countElem.text()) + 1);
+                } else {
+                    alert('Failed to add reaction.');
+                }
+            });
+        });
+    });
+</script>
