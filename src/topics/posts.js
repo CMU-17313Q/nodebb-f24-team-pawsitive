@@ -1,3 +1,4 @@
+
 'use strict';
 
 const _ = require('lodash');
@@ -14,102 +15,93 @@ const utils = require('../utils');
 const backlinkRegex = new RegExp(`(?:${nconf.get('url').replace('/', '\\/')}|\b|\\s)\\/topic\\/(\\d+)(?:\\/\\w+)?`, 'g');
 
 module.exports = function (Topics) {
-    Topics.onNewPostMade = async function (postData) {
-        await Topics.updateLastPostTime(postData.tid, postData.timestamp);
-        await Topics.addPostToTopic(postData.tid, postData);
-    };
+	Topics.onNewPostMade = async function (postData) {
+		await Topics.updateLastPostTime(postData.tid, postData.timestamp);
+		await Topics.addPostToTopic(postData.tid, postData);
+	};
 
-    Topics.getTopicPosts = async function (topicData, set, start, stop, uid, reverse) {
-        if (!topicData) {
-            return [];
-        }
+	Topics.getTopicPosts = async function (topicData, set, start, stop, uid, reverse) {
+		if (!topicData) {
+			return [];
+		}
 
-        let repliesStart = start;
-        let repliesStop = stop;
-        if (stop > 0) {
-            repliesStop -= 1;
-            if (start > 0) {
-                repliesStart -= 1;
-            }
-        }
-        let pids = [];
-        if (start !== 0 || stop !== 0) {
-            pids = await posts.getPidsFromSet(set, repliesStart, repliesStop, reverse);
-        }
-        if (!pids.length && !topicData.mainPid) {
-            return [];
-        }
+		let repliesStart = start;
+		let repliesStop = stop;
+		if (stop > 0) {
+			repliesStop -= 1;
+			if (start > 0) {
+				repliesStart -= 1;
+			}
+		}
+		let pids = [];
+		if (start !== 0 || stop !== 0) {
+			pids = await posts.getPidsFromSet(set, repliesStart, repliesStop, reverse);
+		}
+		if (!pids.length && !topicData.mainPid) {
+			return [];
+		}
 
-        if (topicData.mainPid && start === 0) {
-            pids.unshift(topicData.mainPid);
-        }
-        let postData = await posts.getPostsByPids(pids, uid);
-        if (!postData.length) {
-            return [];
-        }
-        let replies = postData;
-        if (topicData.mainPid && start === 0) {
-            postData[0].index = 0;
-            replies = postData.slice(1);
-        }
+		if (topicData.mainPid && start === 0) {
+			pids.unshift(topicData.mainPid);
+		}
+		let postData = await posts.getPostsByPids(pids, uid);
+		if (!postData.length) {
+			return [];
+		}
+		let replies = postData;
+		if (topicData.mainPid && start === 0) {
+			postData[0].index = 0;
+			replies = postData.slice(1);
+		}
 
-        // Calculate post indices
-        Topics.calculatePostIndices(replies, repliesStart);
+		Topics.calculatePostIndices(replies, repliesStart);
+		await addEventStartEnd(postData, set, reverse, topicData);
+		const allPosts = postData.slice();
+		postData = await user.blocks.filter(uid, postData);
+		if (allPosts.length !== postData.length) {
+			const includedPids = new Set(postData.map(p => p.pid));
+			allPosts.reverse().forEach((p, index) => {
+				if (!includedPids.has(p.pid) && allPosts[index + 1] && !reverse) {
+					allPosts[index + 1].eventEnd = p.eventEnd;
+				}
+			});
+		}
 
-        // ADDED CODE: Fetch and add reaction counts to each post
-        const reactionCounts = await getReactionCountsForPosts(postData.map(post => post.pid));
-        postData.forEach((post) => {
-            post.reactions = reactionCounts[post.pid];
-        });
+		const result = await plugins.hooks.fire('filter:topic.getPosts', {
+			topic: topicData,
+			uid: uid,
+			posts: await Topics.addPostData(postData, uid),
+		});
+		return result.posts;
+	};
 
-        await addEventStartEnd(postData, set, reverse, topicData);
-        const allPosts = postData.slice();
-        postData = await user.blocks.filter(uid, postData);
-        if (allPosts.length !== postData.length) {
-            const includedPids = new Set(postData.map(p => p.pid));
-            allPosts.reverse().forEach((p, index) => {
-                if (!includedPids.has(p.pid) && allPosts[index + 1] && !reverse) {
-                    allPosts[index + 1].eventEnd = p.eventEnd;
-                }
-            });
-        }
-
-        const result = await plugins.hooks.fire('filter:topic.getPosts', {
-            topic: topicData,
-            uid: uid,
-            posts: await Topics.addPostData(postData, uid),
-        });
-        return result.posts;
-    };
-
-    async function addEventStartEnd(postData, set, reverse, topicData) {
-        if (!postData.length) {
-            return;
-        }
-        postData.forEach((p, index) => {
-            if (p && p.index === 0 && reverse) {
-                p.eventStart = topicData.lastposttime;
-                p.eventEnd = Date.now();
-            } else if (p && postData[index + 1]) {
-                p.eventStart = reverse ? postData[index + 1].timestamp : p.timestamp;
-                p.eventEnd = reverse ? p.timestamp : postData[index + 1].timestamp;
-            }
-        });
-        const lastPost = postData[postData.length - 1];
-        if (lastPost) {
-            lastPost.eventStart = reverse ? topicData.timestamp : lastPost.timestamp;
-            lastPost.eventEnd = reverse ? lastPost.timestamp : Date.now();
-            if (lastPost.index) {
-                const nextPost = await db[reverse ? 'getSortedSetRevRangeWithScores' : 'getSortedSetRangeWithScores'](set, lastPost.index, lastPost.index);
-                if (reverse) {
-                    lastPost.eventStart = nextPost.length ? nextPost[0].score : lastPost.eventStart;
-                } else {
-                    lastPost.eventEnd = nextPost.length ? nextPost[0].score : lastPost.eventEnd;
-                }
-            }
-        }
-    }
-
+	async function addEventStartEnd(postData, set, reverse, topicData) {
+		if (!postData.length) {
+			return;
+		}
+		postData.forEach((p, index) => {
+			if (p && p.index === 0 && reverse) {
+				p.eventStart = topicData.lastposttime;
+				p.eventEnd = Date.now();
+			} else if (p && postData[index + 1]) {
+				p.eventStart = reverse ? postData[index + 1].timestamp : p.timestamp;
+				p.eventEnd = reverse ? p.timestamp : postData[index + 1].timestamp;
+			}
+		});
+		const lastPost = postData[postData.length - 1];
+		if (lastPost) {
+			lastPost.eventStart = reverse ? topicData.timestamp : lastPost.timestamp;
+			lastPost.eventEnd = reverse ? lastPost.timestamp : Date.now();
+			if (lastPost.index) {
+				const nextPost = await db[reverse ? 'getSortedSetRevRangeWithScores' : 'getSortedSetRangeWithScores'](set, lastPost.index, lastPost.index);
+				if (reverse) {
+					lastPost.eventStart = nextPost.length ? nextPost[0].score : lastPost.eventStart;
+				} else {
+					lastPost.eventEnd = nextPost.length ? nextPost[0].score : lastPost.eventEnd;
+				}
+			}
+		}
+	}
 
 	Topics.addPostData = async function (postData, uid) {
 		if (!Array.isArray(postData) || !postData.length) {
@@ -444,29 +436,3 @@ module.exports = function (Topics) {
 		return add.length + (current - remove);
 	};
 };
-
-
-
-// ADDED CODE HERE (TALAL)
-
-async function getReactionCountsForPosts(postIds) {
-    const reactionTypes = ['👍', '❤️', '😂']; // Define your reaction types here
-    const counts = {};
-
-    await Promise.all(postIds.map(async (pid) => {
-        counts[pid] = {};
-
-        // Initialize each reaction type to 0
-        reactionTypes.forEach(reaction => {
-            counts[pid][reaction] = 0;
-        });
-
-        // Fetch counts for each reaction type
-        await Promise.all(reactionTypes.map(async (reaction) => {
-            const count = await db.setCount(`post:${pid}:reactions:${reaction}`);
-            counts[pid][reaction] = count || 0;
-        }));
-    }));
-
-    return counts;
-}
