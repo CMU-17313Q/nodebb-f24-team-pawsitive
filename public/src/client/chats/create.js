@@ -39,6 +39,10 @@ define('forum/chats/create', [
 						const type = modal.find('[component="chat/room/type"]').val();
 						const groups = modal.find('[component="chat/room/groups"]').val();
 
+						// Check if the anonymous checkbox is selected
+						const isAnonymous = modal.find('#anonymousCheck').is(':checked');
+
+
 						if (type === 'private' && !uids.length) {
 							alerts.error('[[error:no-users-selected]]');
 							return false;
