@@ -18,4 +18,23 @@ module.exports = function(app) {
             res.status(500).json({ error: error.message });
         }
     });
+
+        // New Route: Fetch reaction counts for a specific post
+        app.get('/api/post/:postId/reactions', async function(req, res) {
+            const postId = req.params.postId;
+    
+            try {
+                // Fetch the counts for each reaction type
+                const reactions = {
+                    '👍': await db.setCard(`post:${postId}:reactions:👍`),
+                    '❤️': await db.setCard(`post:${postId}:reactions:❤️`),
+                    '😂': await db.setCard(`post:${postId}:reactions:😂`)
+                };
+    
+                res.json({ success: true, reactions: reactions });
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+        
 };
