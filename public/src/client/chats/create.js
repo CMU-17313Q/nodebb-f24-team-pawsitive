@@ -41,7 +41,10 @@ define('forum/chats/create', [
 
 						// Check if the anonymous checkbox is selected
 						const isAnonymous = modal.find('#anonymousCheck').is(':checked');
-
+						if (isAnonymous) {
+							// If posting anonymously, set the uids to an empty array or assign a designated anonymous user ID
+							uids.length = 0;
+						}
 
 						if (type === 'private' && !uids.length) {
 							alerts.error('[[error:no-users-selected]]');
@@ -61,6 +64,7 @@ define('forum/chats/create', [
 							uids: uids,
 							type: type,
 							groups: groups,
+							anonymous: isAnonymous, // Send the anonymous flag to the server
 						}).then(({ roomId }) => {
 							ajaxify.go('chats/' + roomId);
 							modal.modal('hide');
