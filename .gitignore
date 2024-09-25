@@ -3,6 +3,7 @@ yarn.lock
 npm-debug.log
 node_modules/*
 !node_modules/nodebb-theme-persona/templates/topic.tpl
+
 sftp-config.json
 config.json
 jsconfig.json
