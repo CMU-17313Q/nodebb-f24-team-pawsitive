@@ -133,7 +133,7 @@ module.exports = function (Topics) {
 			if (postObj) {
 				//to make the user anonymous
 				if (postObj.isAnonymous) {
-					postObj.user = { username: 'Anonymous', displayname: 'Anonymous' };
+					postObj.user = { displayname: 'Anonymous' };
 				} else {
 					postObj.user = postObj.uid ? userData[postObj.uid] : { ...userData[postObj.uid] };
 				}
