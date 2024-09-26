@@ -144,7 +144,7 @@ module.exports = function (Topics) {
 				// Set username and displayname to "Anonymous" if anonymous
 				if (postObj.anonymous) {
 					postObj.user.username = 'Anonymous'; // Set username
-					postObj.user.displayname = 'Anonymous'; // Set displayname
+					
 				} else if (meta.config.allowGuestHandles && postObj.uid === 0 && postObj.handle) {
 					postObj.user.username = validator.escape(String(postObj.handle));
 					postObj.user.displayname = postObj.user.username;

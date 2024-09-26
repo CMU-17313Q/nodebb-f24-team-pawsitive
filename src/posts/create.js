@@ -19,7 +19,10 @@ module.exports = function (Posts) {
 		const content = data.content.toString();
 		const timestamp = data.timestamp || Date.now();
 		const isMain = data.isMain || false;
-
+		// Check if post is anonymous
+		if (isAnonymous) {
+			uid = 0; // Set uid to 0 for anonymous posts
+		}
 
 		if (!uid && parseInt(uid, 10) !== 0) {
 			throw new Error('[[error:invalid-uid]]');
