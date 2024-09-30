@@ -80,7 +80,6 @@ module.exports = function (Topics) {
 	Topics.post = async function (data) {
 		data = await plugins.hooks.fire('filter:topic.post', data);
 		const { uid } = data;
-		
 		const [categoryExists, canCreate, canTag, isAdmin] = await Promise.all([
 			categories.exists(data.cid),
 			privileges.categories.can('topics:create', data.cid, uid),
@@ -88,10 +87,9 @@ module.exports = function (Topics) {
 			privileges.users.isAdministrator(uid),
 		]);
 		
-
 		data.title = String(data.title).trim();
 		data.tags = data.tags || [];
-		data.content = String(data.content || '').trimEnd();		
+		data.content = String(data.content || '').trimEnd();
 		
 		if (!isAdmin) {
 			Topics.checkTitle(data.title);
@@ -124,7 +122,6 @@ module.exports = function (Topics) {
 		}
     
 		const tid = await Topics.create(data);
-
 		let postData = data;
 		postData.tid = tid;
 		postData.ip = data.req ? data.req.ip : null;
