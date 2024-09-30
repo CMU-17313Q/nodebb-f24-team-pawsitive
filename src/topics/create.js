@@ -78,95 +78,96 @@ module.exports = function (Topics) {
 	};
 
 	Topics.post = async function (data) {
-    data = await plugins.hooks.fire('filter:topic.post', data);
-    const { uid } = data;
+		data = await plugins.hooks.fire('filter:topic.post', data);
+		const { uid } = data;
+		
+		const [categoryExists, canCreate, canTag, isAdmin] = await Promise.all([
+			categories.exists(data.cid),
+			privileges.categories.can('topics:create', data.cid, uid),
+			privileges.categories.can('topics:tag', data.cid, uid),
+			privileges.users.isAdministrator(uid),
+		]);
+		
 
-    const [categoryExists, canCreate, canTag, isAdmin] = await Promise.all([
-        categories.exists(data.cid),
-        privileges.categories.can('topics:create', data.cid, uid),
-        privileges.categories.can('topics:tag', data.cid, uid),
-        privileges.users.isAdministrator(uid),
-    ]);
-
-    data.title = String(data.title).trim();
-    data.tags = data.tags || [];
-    data.content = String(data.content || '').trimEnd();
-    if (!isAdmin) {
-        Topics.checkTitle(data.title);
-    }
-
-    await Topics.validateTags(data.tags, data.cid, uid);
-    data.tags = await Topics.filterTags(data.tags);
-    if (!data.fromQueue && !isAdmin) {
-        Topics.checkContent(data.content);
-        if (!await posts.canUserPostContentWithLinks(uid, data.content)) {
-            throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
-        }
-    }
-
-    if (!categoryExists) {
-        throw new Error('[[error:no-category]]');
-    }
-
-    if (!canCreate || (!canTag && data.tags.length)) {
-        throw new Error('[[error:no-privileges]]');
-    }
-
-    await guestHandleValid(data);
-    if (!data.fromQueue) {
-        await user.isReadyToPost(uid, data.cid);
-    }
-
-    // Check if the post should be anonymous
-    if (data.isAnonymous) {
-        data.uid = 0; // Set uid to 0 for anonymous posting
-    }
+		data.title = String(data.title).trim();
+		data.tags = data.tags || [];
+		data.content = String(data.content || '').trimEnd();		
+		
+		if (!isAdmin) {
+			Topics.checkTitle(data.title);
+		}
+		
+		await Topics.validateTags(data.tags, data.cid, uid);
+		data.tags = await Topics.filterTags(data.tags);
+		if (!data.fromQueue && !isAdmin) {
+			Topics.checkContent(data.content);
+			if (!await posts.canUserPostContentWithLinks(uid, data.content)) {
+				throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
+			}
+		}
+		
+		if (!categoryExists) {
+			throw new Error('[[error:no-category]]');
+		}
+		if (!canCreate || (!canTag && data.tags.length)) {
+			throw new Error('[[error:no-privileges]]');
+		}
+		
+		await guestHandleValid(data);
+		if (!data.fromQueue) {
+			await user.isReadyToPost(uid, data.cid);
+		}
+		
+		// Check if the post should be anonymous
+		if (data.isAnonymous) {
+			data.uid = 0; // Set uid to 0 for anonymous posting
+		}
     
-    const tid = await Topics.create(data);
+		const tid = await Topics.create(data);
 
-    let postData = data;
-    postData.tid = tid;
-    postData.ip = data.req ? data.req.ip : null;
-    postData.isMain = true;
-    postData = await posts.create(postData);
-    postData = await onNewPost(postData, data);
+		let postData = data;
+		postData.tid = tid;
+		postData.ip = data.req ? data.req.ip : null;
+		postData.isMain = true;
+		postData = await posts.create(postData);
+		postData = await onNewPost(postData, data);
 
-    const [settings, topics] = await Promise.all([
-        user.getSettings(uid),
-        Topics.getTopicsByTids([postData.tid], uid),
-    ]);
+		const [settings, topics] = await Promise.all([
+			user.getSettings(uid),
+			Topics.getTopicsByTids([postData.tid], uid),
+		]);
 
-    if (!Array.isArray(topics) || !topics.length) {
-        throw new Error('[[error:no-topic]]');
-    }
+		if (!Array.isArray(topics) || !topics.length) {
+			throw new Error('[[error:no-topic]]');
+		}
 
-    if (uid > 0 && settings.followTopicsOnCreate) {
-        await Topics.follow(postData.tid, uid);
-    }
-    const topicData = topics[0];
-    topicData.unreplied = true;
-    topicData.mainPost = postData;
-    topicData.index = 0;
-    postData.index = 0;
+		if (uid > 0 && settings.followTopicsOnCreate) {
+			await Topics.follow(postData.tid, uid);
+		}
+		const topicData = topics[0];
+		topicData.unreplied = true;
+		topicData.mainPost = postData;
+		topicData.index = 0;
+		postData.index = 0;
 
-    if (topicData.scheduled) {
-        await Topics.delete(tid);
-    }
+		if (topicData.scheduled) {
+			await Topics.delete(tid);
+		}
 
-    analytics.increment(['topics', `topics:byCid:${topicData.cid}`]);
-    plugins.hooks.fire('action:topic.post', { topic: topicData, post: postData, data: data });
+		analytics.increment(['topics', `topics:byCid:${topicData.cid}`]);
+		plugins.hooks.fire('action:topic.post', { topic: topicData, post: postData, data: data });
 
-    if (parseInt(uid, 10) && !topicData.scheduled) {
-        user.notifications.sendTopicNotificationToFollowers(uid, topicData, postData);
-        Topics.notifyTagFollowers(postData, uid);
-        categories.notifyCategoryFollowers(postData, uid);
-    }
+		if (parseInt(uid, 10) && !topicData.scheduled) {
+			user.notifications.sendTopicNotificationToFollowers(uid, topicData, postData);
+			Topics.notifyTagFollowers(postData, uid);
+			categories.notifyCategoryFollowers(postData, uid);
+		}
 
-    return {
-        topicData: topicData,
-        postData: postData,
-    };
-};
+		return {
+			topicData: topicData,
+			postData: postData,
+		};
+	};
 
 
 	Topics.reply = async function (data) {
