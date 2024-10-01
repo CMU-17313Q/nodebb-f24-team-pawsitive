@@ -86,15 +86,12 @@ module.exports = function (Topics) {
 			privileges.categories.can('topics:tag', data.cid, uid),
 			privileges.users.isAdministrator(uid),
 		]);
-		
 		data.title = String(data.title).trim();
 		data.tags = data.tags || [];
 		data.content = String(data.content || '').trimEnd();
-		
 		if (!isAdmin) {
 			Topics.checkTitle(data.title);
 		}
-		
 		await Topics.validateTags(data.tags, data.cid, uid);
 		data.tags = await Topics.filterTags(data.tags);
 		if (!data.fromQueue && !isAdmin) {
@@ -103,24 +100,20 @@ module.exports = function (Topics) {
 				throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
 			}
 		}
-		
 		if (!categoryExists) {
 			throw new Error('[[error:no-category]]');
 		}
 		if (!canCreate || (!canTag && data.tags.length)) {
 			throw new Error('[[error:no-privileges]]');
 		}
-		
 		await guestHandleValid(data);
 		if (!data.fromQueue) {
 			await user.isReadyToPost(uid, data.cid);
 		}
-		
 		// Check if the post should be anonymous
 		if (data.isAnonymous) {
 			data.uid = 0; // Set uid to 0 for anonymous posting
 		}
-    
 		const tid = await Topics.create(data);
 		let postData = data;
 		postData.tid = tid;
