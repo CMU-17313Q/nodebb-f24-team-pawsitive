@@ -1,17 +1,18 @@
 {
-    "url": "http://127.0.0.1:4567/forum",
-    "secret": "abcdef",
+    "url": "http://localhost:4567",
+    "secret": "1fbf3fbd-fc64-4821-8eb2-a9349aecdc46",
     "database": "redis",
-    "port": "4567",
     "redis": {
         "host": "127.0.0.1",
-        "port": 6379,
+        "port": "6379",
         "password": "",
-        "database": 0
+        "database": "0"
     },
+    "port": "4567",
     "test_database": {
         "host": "127.0.0.1",
-        "database": 1,
-        "port": 6379
+        "port": "6379",
+        "password": "",
+        "database": "1"
     }
 }

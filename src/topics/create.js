@@ -80,32 +80,38 @@ module.exports = function (Topics) {
 	Topics.post = async function (data) {
 		data = await plugins.hooks.fire('filter:topic.post', data);
 		const { uid } = data;
+
 		const [categoryExists, canCreate, canTag, isAdmin] = await Promise.all([
 			categories.exists(data.cid),
 			privileges.categories.can('topics:create', data.cid, uid),
 			privileges.categories.can('topics:tag', data.cid, uid),
 			privileges.users.isAdministrator(uid),
 		]);
+
 		data.title = String(data.title).trim();
 		data.tags = data.tags || [];
 		data.content = String(data.content || '').trimEnd();
 		if (!isAdmin) {
 			Topics.checkTitle(data.title);
 		}
+
 		await Topics.validateTags(data.tags, data.cid, uid);
-		data.tags = await Topics.filterTags(data.tags);
+		data.tags = await Topics.filterTags(data.tags, data.cid);
 		if (!data.fromQueue && !isAdmin) {
 			Topics.checkContent(data.content);
 			if (!await posts.canUserPostContentWithLinks(uid, data.content)) {
 				throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
 			}
 		}
+
 		if (!categoryExists) {
 			throw new Error('[[error:no-category]]');
 		}
+
 		if (!canCreate || (!canTag && data.tags.length)) {
 			throw new Error('[[error:no-privileges]]');
 		}
+
 		await guestHandleValid(data);
 		if (!data.fromQueue) {
 			await user.isReadyToPost(uid, data.cid);
@@ -115,6 +121,7 @@ module.exports = function (Topics) {
 			data.uid = 0; // Set uid to 0 for anonymous posting
 		}
 		const tid = await Topics.create(data);
+
 		let postData = data;
 		postData.tid = tid;
 		postData.ip = data.req ? data.req.ip : null;
@@ -158,7 +165,6 @@ module.exports = function (Topics) {
 			postData: postData,
 		};
 	};
-
 
 	Topics.reply = async function (data) {
 		data = await plugins.hooks.fire('filter:topic.reply', data);
