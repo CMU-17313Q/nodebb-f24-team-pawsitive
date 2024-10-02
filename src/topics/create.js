@@ -116,10 +116,7 @@ module.exports = function (Topics) {
 		if (!data.fromQueue) {
 			await user.isReadyToPost(uid, data.cid);
 		}
-		// Check if the post should be anonymous
-		if (data.isAnonymous) {
-			data.uid = 0; // Set uid to 0 for anonymous posting
-		}
+
 		const tid = await Topics.create(data);
 
 		let postData = data;
