@@ -1,5 +1,5 @@
 'use strict';
-
+const reactions = require('./reactions');
 const nconf = require('nconf');
 const winston = require('winston');
 const path = require('path');
