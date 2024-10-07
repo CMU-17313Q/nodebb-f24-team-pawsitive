@@ -1,8 +1,10 @@
+// src/routes/reactions.js
+
 const db = require.main.require('./src/database');
 
-module.exports = function(app) {
-    // Handle the emoji reaction for a post
-    app.post('/api/post/:postId/reaction', async function(req, res) {
+module.exports = function (app) {
+    // Handle adding a reaction
+    app.post('/api/post/:postId/reaction', async function (req, res) {
         const postId = req.params.postId;
         const reaction = req.body.reaction;
         const uid = req.user ? req.user.uid : 0;
@@ -12,7 +14,6 @@ module.exports = function(app) {
         }
 
         try {
-            // Store the reaction in the database (for example, as a Redis set)
             await db.setAdd(`post:${postId}:reactions:${reaction}`, uid);
             res.json({ success: true });
         } catch (error) {
@@ -20,19 +21,20 @@ module.exports = function(app) {
         }
     });
 
-    // GET route to retrieve reaction counts
-    app.get('/api/post/:postId/reactions', async function(req, res) {
+    // Handle fetching reactions
+    app.get('/api/post/:postId/reactions', async function (req, res) {
         const postId = req.params.postId;
 
         try {
-            const reactions = {
-                '👍': await db.setCard(`post:${postId}:reactions:👍`),
-                '❤️': await db.setCard(`post:${postId}:reactions:❤️`),
-                '😂': await db.setCard(`post:${postId}:reactions:😂`)
-            };
+            const reactions = {};
+            const emojis = ['👍', '❤️', '😂'];
+            for (const emoji of emojis) {
+                const count = await db.setCard(`post:${postId}:reactions:${emoji}`);
+                reactions[emoji] = count || 0;
+            }
             res.json({ success: true, reactions: reactions });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     });
-}
+};
