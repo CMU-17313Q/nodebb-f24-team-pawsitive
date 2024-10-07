@@ -13,6 +13,7 @@ const plugins = require('../plugins');
 const authRoutes = require('./authentication');
 const writeRoutes = require('./write');
 const helpers = require('./helpers');
+const topicsRoutes = require('./topics');
 
 const { setupPageRoute } = helpers;
 
@@ -158,7 +159,6 @@ function addCoreRoutes(app, router, middleware, mounts) {
 	_mounts.main(router, middleware, controllers);
 	_mounts.mod(router, middleware, controllers);
 	_mounts.globalMod(router, middleware, controllers);
-	_mounts.topics(router, middleware, controllers);  // Added this to initialize the topics route
 
 	addRemountableRoutes(app, router, middleware, mounts);
 

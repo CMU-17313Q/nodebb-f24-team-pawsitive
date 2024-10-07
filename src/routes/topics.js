@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const Topics = require('../src/topics');  // Import the Topics module
+const Topics = require('../topics');  // Import the Topics module
 
 // Route to mark a topic as solved
 router.post('/topics/:tid/solve', async (req, res) => {
