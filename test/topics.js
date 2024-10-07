@@ -185,7 +185,23 @@ describe('Topic\'s', () => {
 				jar: jar,
 				json: true,
 			});
+			// Adding test for anonymous feature
+			it('should post a topic anonymously', (done) => {
+				const anonymousTopic = {
+					uid: topic.userId, // Use a valid user ID to create the topic initially
+					title: topic.title,
+					content: topic.content,
+					cid: topic.categoryId,
+					isAnonymous: true, // Set the isAnonymous flag
+				};
 
+				topics.post(anonymousTopic, (err, result) => {
+					assert.ifError(err);
+					assert(result);
+					assert.equal(result.topicData.uid, 0, 'UID should be set to 0 for anonymous posts'); // Check if uid is set to 0
+					done();
+				});
+			});
 			assert.strictEqual(result.body.status.code, 'ok');
 			assert.strictEqual(result.body.response.title, 'just a title');
 			assert.strictEqual(result.body.response.user.username, '[[global:guest]]');
