@@ -195,9 +195,8 @@ describe('Topic\'s', () => {
 						content: 'This is an anonymous post.',
 						categoryId: 123, // Use a valid category ID
 					};
-
 					const anonymousTopic = {
-						uid: topic.userId, 
+						uid: topic.userId,
 						title: topic.title,
 						content: topic.content,
 						cid: topic.categoryId,
