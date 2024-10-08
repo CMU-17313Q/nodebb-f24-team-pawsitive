@@ -186,20 +186,30 @@ describe('Topic\'s', () => {
 				json: true,
 			});
 			// Adding test for anonymous feature
-			it('should post a topic anonymously', (done) => {
-				const anonymousTopic = {
-					uid: topic.userId, // Use a valid user ID to create the topic initially
-					title: topic.title,
-					content: topic.content,
-					cid: topic.categoryId,
-					isAnonymous: true, // Set the isAnonymous flag
-				};
+			const assert = require('assert'); // Ensure you have assert imported at the top
+			describe('Anonymous Topic Posting', () => {
+				it('should post a topic anonymously', (done) => {
+					const topic = {
+						userId: 1, // A valid user ID (you might want to change this based on your test environment)
+						title: 'Anonymous Post Title',
+						content: 'This is an anonymous post.',
+						categoryId: 123, // Use a valid category ID
+					};
 
-				topics.post(anonymousTopic, (err, result) => {
-					assert.ifError(err);
-					assert(result);
-					assert.equal(result.topicData.uid, 0, 'UID should be set to 0 for anonymous posts'); // Check if uid is set to 0
-					done();
+					const anonymousTopic = {
+						uid: topic.userId, 
+						title: topic.title,
+						content: topic.content,
+						cid: topic.categoryId,
+						isAnonymous: true, // Set the isAnonymous flag
+					};
+
+					topics.post(anonymousTopic, (err, result) => {
+						assert.ifError(err); // Assert no errors occurred
+						assert(result); // Assert result exists
+						assert.equal(result.topicData.uid, 0, 'UID should be set to 0 for anonymous posts'); // Check if uid is set to 0
+						done();
+					});
 				});
 			});
 			assert.strictEqual(result.body.status.code, 'ok');
