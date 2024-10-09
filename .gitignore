@@ -3,6 +3,8 @@ yarn.lock
 npm-debug.log
 node_modules/*
 !node_modules/nodebb-plugin-composer-default
+!node_modules/nodebb-theme-lavender
+!node_modules/nodebb-theme-harmony
 sftp-config.json
 config.json
 jsconfig.json
