@@ -298,3 +298,23 @@ topicsAPI.bump = async (caller, { tid }) => {
 	await topics.markAsUnreadForAll(tid);
 	topics.pushUnreadCount(caller.uid);
 };
+
+
+// API method to mark a topic as solved
+topicsAPI.markAsSolved = async function (caller, { tid }) {
+    if (!await privileges.topics.canEdit(tid, caller.uid)) {
+        throw new Error('[[error:no-privileges]]');
+    }
+    await topics.markAsSolved(tid);
+    return { status: 'success', message: `Topic ${tid} marked as solved.` };
+};
+
+// API method to mark a topic as unsolved
+topicsAPI.markAsUnsolved = async function (caller, { tid }) {
+    if (!await privileges.topics.canEdit(tid, caller.uid)) {
+        throw new Error('[[error:no-privileges]]');
+    }
+    await topics.markAsUnsolved(tid);
+    return { status: 'success', message: `Topic ${tid} marked as unsolved.` };
+};
+

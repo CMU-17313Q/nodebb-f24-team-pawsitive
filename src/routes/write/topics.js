@@ -51,8 +51,11 @@ module.exports = function () {
 
 	// added for solved and unsolved features
 
-	setupApiRoute(router, 'post', '/:tid/solve', [middleware.ensureLoggedIn], controllers.write.topics.markAsSolved);
-	setupApiRoute(router, 'post', '/:tid/unsolve', [middleware.ensureLoggedIn], controllers.write.topics.markAsUnsolved);
+	// Route to mark a topic as solved
+    setupApiRoute(router, 'post', '/:tid/solve', middlewares, controllers.write.topics.markAsSolved);
+
+    // Route to mark a topic as unsolved
+    setupApiRoute(router, 'post', '/:tid/unsolve', middlewares, controllers.write.topics.markAsUnsolved);
 
 
 
