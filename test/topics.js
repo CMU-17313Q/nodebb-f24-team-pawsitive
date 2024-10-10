@@ -185,29 +185,46 @@ describe('Topic\'s', () => {
 				jar: jar,
 				json: true,
 			});
-			// Adding test for anonymous feature
+			// testing anonymous feature
 			const assert = require('assert'); // Ensure you have assert imported at the top
 			describe('Anonymous Topic Posting', () => {
 				it('should post a topic anonymously', (done) => {
+					// Create a mock topic object for anonymous posting
 					const topic = {
-						userId: 1, // A valid user ID (you might want to change this based on your test environment)
+						userId: 0, // Assuming 0 is the ID for anonymous posts
 						title: 'Anonymous Post Title',
 						content: 'This is an anonymous post.',
 						categoryId: 123, // Use a valid category ID
 					};
+
+					// Object to simulate the data sent in the API request
 					const anonymousTopic = {
 						uid: topic.userId,
 						title: topic.title,
 						content: topic.content,
 						cid: topic.categoryId,
-						isAnonymous: true, // Set the isAnonymous flag
+						isAnonymous: true, // Ensures it's flagged as anonymous
 					};
 
+					// Post the anonymous topic
 					topics.post(anonymousTopic, (err, result) => {
-						assert.ifError(err); // Assert no errors occurred
-						assert(result); // Assert result exists
-						assert.equal(result.topicData.uid, 0, 'UID should be set to 0 for anonymous posts'); // Check if uid is set to 0
-						done();
+						if (err) {
+							return done(err); // Return if an error occurs to avoid false success
+						}
+
+						try {
+							// Assert the response and check the values in the result
+							assert(result, 'Result should be returned'); // Ensure result exists
+							assert.strictEqual(result.topicData.uid, 0, 'UID should be set to 0 for anonymous posts'); // Anonymous check
+							assert.strictEqual(result.topicData.title, topic.title, 'Title should match the input');
+							assert.strictEqual(result.topicData.content, topic.content, 'Content should match the input');
+							assert.strictEqual(result.topicData.cid, topic.categoryId, 'Category ID should match the input');
+							assert.strictEqual(result.topicData.isAnonymous, true, 'Post should be flagged as anonymous');
+
+							done(); // Signal test completion if everything is correct
+						} catch (e) {
+							done(e); // Handle any assertion errors
+						}
 					});
 				});
 			});
