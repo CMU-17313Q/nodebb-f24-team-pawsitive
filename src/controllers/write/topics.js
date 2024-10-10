@@ -207,3 +207,28 @@ Topics.bump = async (req, res) => {
 
 	helpers.formatApiResponse(200, res);
 };
+
+// logic controller for marked as solved
+
+Topics.markAsSolved = async (req, res) => {
+    try {
+        const tid = req.params.tid;
+        await topics.markAsSolved(tid);  // Assuming the logic exists in the topics module
+        helpers.formatApiResponse(200, res, { status: 'ok', message: `Topic ${tid} marked as solved.` });
+    } catch (error) {
+        console.error(`Failed to mark topic ${tid} as solved: ${error}`);
+        helpers.formatApiResponse(500, res, { status: 'error', message: error.message });
+    }
+};
+
+Topics.markAsUnsolved = async (req, res) => {
+    try {
+        const tid = req.params.tid;
+        await topics.markAsUnsolved(tid);  // Assuming the logic exists in the topics module
+        helpers.formatApiResponse(200, res, { status: 'ok', message: `Topic ${tid} marked as unsolved.` });
+    } catch (error) {
+        console.error(`Failed to mark topic ${tid} as unsolved: ${error}`);
+        helpers.formatApiResponse(500, res, { status: 'error', message: error.message });
+    }
+};
+

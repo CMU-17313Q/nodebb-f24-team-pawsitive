@@ -50,8 +50,11 @@ module.exports = function () {
 	setupApiRoute(router, 'put', '/:tid/bump', [...middlewares, middleware.assert.topic], controllers.write.topics.bump);
 
 	// added for solved and unsolved features
-	setupApiRoute(router, 'put', '/:tid/solve', [...middlewares, middleware.assert.topic], controllers.write.topics.markAsSolved);
-	setupApiRoute(router, 'put', '/:tid/unsolve', [...middlewares, middleware.assert.topic], controllers.write.topics.markAsUnsolved);
+
+	setupApiRoute(router, 'post', '/:tid/solve', [middleware.ensureLoggedIn], controllers.write.topics.markAsSolved);
+	setupApiRoute(router, 'post', '/:tid/unsolve', [middleware.ensureLoggedIn], controllers.write.topics.markAsUnsolved);
+
+
 
 	return router;
 };
