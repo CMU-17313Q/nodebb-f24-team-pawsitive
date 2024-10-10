@@ -15,6 +15,28 @@ const social = require('../social');
 
 const Topics = module.exports;
 
+// Function to mark a topic as solved
+Topics.markAsSolved = async function (tid) {
+    try {
+        await db.setObjectField(`topic:${tid}`, 'isSolved', 1);  // Set solved status to 1
+        console.log(`Topic ${tid} marked as solved.`);
+    } catch (err) {
+        console.error(`Error marking topic ${tid} as solved: `, err);
+        throw new Error('Failed to mark topic as solved.');
+    }
+};
+
+// Function to mark a topic as unsolved
+Topics.markAsUnsolved = async function (tid) {
+    try {
+        await db.setObjectField(`topic:${tid}`, 'isSolved', 0);  // Set solved status to 0
+        console.log(`Topic ${tid} marked as unsolved.`);
+    } catch (err) {
+        console.error(`Error marking topic ${tid} as unsolved: `, err);
+        throw new Error('Failed to mark topic as unsolved.');
+    }
+};
+
 require('./data')(Topics);
 require('./create')(Topics);
 require('./delete')(Topics);

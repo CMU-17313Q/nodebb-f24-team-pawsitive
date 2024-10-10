@@ -49,5 +49,15 @@ module.exports = function () {
 	setupApiRoute(router, 'delete', '/:tid/read', [...middlewares, middleware.assert.topic], controllers.write.topics.markUnread);
 	setupApiRoute(router, 'put', '/:tid/bump', [...middlewares, middleware.assert.topic], controllers.write.topics.bump);
 
+	// added for solved and unsolved features
+
+	// Route to mark a topic as solved
+    setupApiRoute(router, 'post', '/:tid/solve', middlewares, controllers.write.topics.markAsSolved);
+
+    // Route to mark a topic as unsolved
+    setupApiRoute(router, 'post', '/:tid/unsolve', middlewares, controllers.write.topics.markAsUnsolved);
+
+
+
 	return router;
 };
