@@ -194,7 +194,7 @@ describe('Topic\'s', () => {
 						userId: 0, // Assuming 0 is the ID for anonymous posts
 						title: 'Anonymous Post Title',
 						content: 'This is an anonymous post.',
-						categoryId: 123, // Use a valid category ID
+						categoryId: 123,
 					};
 
 					// Object to simulate the data sent in the API request
