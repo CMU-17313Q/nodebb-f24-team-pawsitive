@@ -13,7 +13,6 @@ const plugins = require('../plugins');
 const authRoutes = require('./authentication');
 const writeRoutes = require('./write');
 const helpers = require('./helpers');
-const topicsRoutes = require('./topics');
 
 const { setupPageRoute } = helpers;
 
@@ -23,7 +22,6 @@ const _mounts = {
 	api: require('./api'),
 	admin: require('./admin'),
 	feed: require('./feeds'),
-	topics: require('./topics'),  // Register the topics route file here
 };
 
 _mounts.main = (app, middleware, controllers) => {
