@@ -1,0 +1,18 @@
+{
+  "id": "nodebb-plugin-emoji-reactions",
+  "name": "NodeBB Emoji Reactions",
+  "description": "Adds emoji reactions to posts with counts.",
+  "url": "https://github.com/fdounis/nodebb-plugin-emoji-reactions",
+  "library": "./library.js",
+  "hooks": [
+    {
+      "hook": "static:app.load",
+      "method": "init"
+    }
+  ],
+  "assets": {
+    "static/css": "./public/css"
+  },
+  "scripts": "./public/js/main.js",
+  "templates": "./public/templates"
+}
