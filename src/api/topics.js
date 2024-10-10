@@ -300,7 +300,7 @@ topicsAPI.bump = async (caller, { tid }) => {
 };
 
 
-// API method to mark a topic as solved
+// API method to mark a topic as solvedd
 topicsAPI.markAsSolved = async function (caller, { tid }) {
     if (!await privileges.topics.canEdit(tid, caller.uid)) {
         throw new Error('[[error:no-privileges]]');
