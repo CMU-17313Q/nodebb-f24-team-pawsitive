@@ -1,0 +1,8 @@
+{
+  "name": "nodebb-plugin-emoji-reactions",
+  "version": "1.0.0",
+  "description": "Adds emoji reactions to posts with counts.",
+  "main": "library.js",
+  "author": "Your Name",
+  "license": "ISC"
+}
