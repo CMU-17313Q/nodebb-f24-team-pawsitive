@@ -185,49 +185,6 @@ describe('Topic\'s', () => {
 				jar: jar,
 				json: true,
 			});
-			// testing anonymous feature
-			const assert = require('assert'); // Ensure you have assert imported at the top
-			describe('Anonymous Topic Posting', () => {
-				it('should post a topic anonymously', (done) => {
-					// Create a mock topic object for anonymous posting
-					const topic = {
-						userId: 0, // Assuming 0 is the ID for anonymous posts
-						title: 'Anonymous Post Title',
-						content: 'This is an anonymous post.',
-						categoryId: 123,
-					};
-
-					// Object to simulate the data sent in the API request
-					const anonymousTopic = {
-						uid: topic.userId,
-						title: topic.title,
-						content: topic.content,
-						cid: topic.categoryId,
-						isAnonymous: true, // Ensures it's flagged as anonymous
-					};
-
-					// Post the anonymous topic
-					topics.post(anonymousTopic, (err, result) => {
-						if (err) {
-							return done(err); // Return if an error occurs to avoid false success
-						}
-
-						try {
-							// Assert the response and check the values in the result
-							assert(result, 'Result should be returned'); // Ensure result exists
-							assert.strictEqual(result.topicData.uid, 0, 'UID should be set to 0 for anonymous posts'); // Anonymous check
-							assert.strictEqual(result.topicData.title, topic.title, 'Title should match the input');
-							assert.strictEqual(result.topicData.content, topic.content, 'Content should match the input');
-							assert.strictEqual(result.topicData.cid, topic.categoryId, 'Category ID should match the input');
-							assert.strictEqual(result.topicData.isAnonymous, true, 'Post should be flagged as anonymous');
-
-							done(); // Signal test completion if everything is correct
-						} catch (e) {
-							done(e); // Handle any assertion errors
-						}
-					});
-				});
-			});
 			assert.strictEqual(result.body.status.code, 'ok');
 			assert.strictEqual(result.body.response.title, 'just a title');
 			assert.strictEqual(result.body.response.user.username, '[[global:guest]]');
@@ -241,7 +198,59 @@ describe('Topic\'s', () => {
 			assert.strictEqual(replyResult.body.response.content, 'a reply by guest');
 			assert.strictEqual(replyResult.body.response.user.username, '[[global:guest]]');
 		});
-
+		before(async () => {
+			adminUid = await User.create({ username: 'adminUser', password: 'securePassword' });
+			fooUid = await User.create({ username: 'regularUser' });
+			await groups.join('administrators', adminUid);
+			const adminSession = await helpers.loginUser('adminUser', 'securePassword');
+			adminJar = adminSession.jar;
+			csrf_token = adminSession.csrf_token;
+			categoryObj = await categories.create({
+				name: 'Sample Category',
+				description: 'A category created specifically for testing purposes',
+			});
+			topic = {
+				userId: adminUid,
+				categoryId: categoryObj.cid,
+				title: 'Sample Topic Title',
+				content: 'Content for sample topic',
+			};
+		});
+		it('should successfully create a new topic as a non-anonymous user', (done) => {
+			topics.post({
+				uid: topic.userId,
+				title: topic.title,
+				content: topic.content,
+				cid: topic.categoryId,
+				isAnonymous: false,
+			}, (err, result) => {
+				assert.ifError(err);
+				assert(result);
+				topic.tid = result.topicData.tid;
+				assert.strictEqual(result.topicData.uid, adminUid);
+				assert.strictEqual(result.topicData.user.username, 'adminUser');
+				assert.strictEqual(result.topicData.user.displayname, 'adminUser');
+				done();
+			});
+		});
+		it('should successfully create a new topic with anonymous posting enabled', (done) => {
+			topics.post({
+				uid: topic.userId,
+				title: topic.title,
+				content: topic.content,
+				cid: topic.categoryId,
+				isAnonymous: true,
+			}, (err, result) => {
+				assert.ifError(err);
+				assert(result);
+				topic.tid = result.topicData.tid;
+				// Check if the user is recognized as a guest
+				assert.strictEqual(result.topicData.uid, 0); // UID for anonymous posts can be 0
+				assert.strictEqual(result.topicData.user.username, '[[global:guest]]'); // Verify guest username
+				assert.strictEqual(result.topicData.user.displayname, '[[global:guest]]'); // Verify guest display name
+				done();
+			});
+		});
 		it('should post a topic/reply as guest with handle if guest group has privileges', async () => {
 			const categoryObj = await categories.create({
 				name: 'Test Category',
