@@ -30,5 +30,25 @@ describe('Emoji Reactions API', () => {
     authenticateStub.restore();
   });
 
-  // Test cases will be added here in subsequent commits
+  describe('POST /api/post/:postId/reaction', () => {
+    it('should add a reaction successfully', (done) => {
+      const postId = '3';
+      const reaction = '👍';
+      const userId = 1;
+
+      // Stub the database method to simulate adding a reaction
+      const setAddStub = sinon.stub(db, 'setAdd').resolves();
+
+      chai.request(server)
+        .post(`/api/post/${postId}/reaction`)
+        .send({ reaction })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('success', true);
+          expect(setAddStub.calledOnce).to.be.true;
+          setAddStub.restore();
+          done();
+        });
+    });
+  });
 });
