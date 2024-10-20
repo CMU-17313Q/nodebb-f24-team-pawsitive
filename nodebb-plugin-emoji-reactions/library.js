@@ -7,7 +7,7 @@ const db = require.main.require('./src/database');
 const EmojiReactions = {};
 
 EmojiReactions.init = function(params, callback) {
-    const app = params.router;
+const app = params.router;
     const middleware = params.middleware;
 
     console.log('Emoji Reactions plugin initialized.');
