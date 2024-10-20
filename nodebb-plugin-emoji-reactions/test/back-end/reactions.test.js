@@ -51,4 +51,19 @@ describe('Emoji Reactions API', () => {
         });
     });
   });
+
+    it('should return 400 for invalid reaction', (done) => {
+      const postId = '3';
+      const reaction = 'invalid';
+
+      chai.request(server)
+        .post(`/api/post/${postId}/reaction`)
+        .send({ reaction })
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          expect(res.body).to.have.property('error', 'Invalid reaction.');
+          done();
+        });
+    });
+
 });
