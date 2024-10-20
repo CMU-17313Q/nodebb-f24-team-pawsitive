@@ -83,4 +83,22 @@ describe('Emoji Reactions API', () => {
         });
     });
 
+    it('should handle server errors gracefully', (done) => {
+      const postId = '3';
+      const reaction = '👍';
+
+      // Stub the database method to simulate a server error
+      const setAddStub = sinon.stub(db, 'setAdd').rejects(new Error('Database Error'));
+
+      chai.request(server)
+        .post(`/api/post/${postId}/reaction`)
+        .send({ reaction })
+        .end((err, res) => {
+          expect(res).to.have.status(500);
+          expect(res.body).to.have.property('error', 'Database Error');
+          setAddStub.restore();
+          done();
+        });
+    });
+
 });
