@@ -66,4 +66,21 @@ describe('Emoji Reactions API', () => {
         });
     });
 
+    it('should return 403 if user is not authenticated', (done) => {
+      // Modify the authentication stub to simulate an unauthenticated user
+      authenticateStub.returns(false);
+
+      const postId = '3';
+      const reaction = '👍';
+
+      chai.request(server)
+        .post(`/api/post/${postId}/reaction`)
+        .send({ reaction })
+        .end((err, res) => {
+          expect(res).to.have.status(403);
+          expect(res.body).to.have.property('error', 'You must be logged in to react.');
+          done();
+        });
+    });
+
 });
