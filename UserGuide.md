@@ -14,14 +14,16 @@ Welcome to our "PAWsitively” Enhanced NodeBB Guide created with care by Team P
 4. Click submit and congratulations\! You have successfully posted anonymously\!
 
 **Below, the team has attached a visual walkthrough of these steps to guide you after step 1:**  
-![][image1]
+<img width="487" alt="Screenshot 2024-10-20 at 8 56 58 PM" src="https://github.com/user-attachments/assets/64a7f09e-f3da-4112-a55a-1cbe0c59a9f6">
+
 
 * **Emoji Reaction Feature:**  
   1. Click on the topic you are interested in posting in\!  
   2. Inside the topic, click the post you would like to add an emoji reaction to.  
   3. Once you have posted your topic, you will find a toolbar to edit your post with different options. Some of these options are the emoji reactions \! Click on the reaction that best describes your feeling to the post\! 
 
-![][image2]
+<img width="789" alt="Screenshot 2024-10-20 at 8 57 16 PM" src="https://github.com/user-attachments/assets/02309389-1d24-4e65-8cf1-5ea27f12a882">
+
 
 * **Marking Issues as Solved**  
 1. Click on the topic you are interested in posting in\!  
@@ -29,7 +31,7 @@ Welcome to our "PAWsitively” Enhanced NodeBB Guide created with care by Team P
 3. Once you have posted your topic, you will find a toolbar to edit your post with different options. One of those options is “Mark As Solved”  
 4. Click on the button and you’ll see the label change to “Marked As Solved” and turn green in color.
 
-![][image3]
+<img width="789" alt="Screenshot 2024-10-20 at 8 57 31 PM" src="https://github.com/user-attachments/assets/37bd03bd-63df-4802-bb77-a0ee5c802ad9">
 
 **Automated Tests:**  
 [**Automated Testing For Anonymous feature (backend)**](https://github.com/CMU-17313Q/nodebb-f24-team-pawsitive/pull/27)**:** In the file test/topics.js, lines 201-254 we have created an automated test for the anonymous feature. The test initializes an administrator and a regular user, creating a sample category for testing that ensures the feature is tested on all angels. Within the test there is a non-anonymous user test and anonymous user test. The non-anonymous user test verifies that an admin can successfully create a topic with their username and display name correctly associated. The anonymous posting test confirms that a topic can be created anonymously, ensuring the topic is associated with a guest user (UID 0\) and the username/display name are set to \[\[global:guest\]\].
