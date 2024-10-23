@@ -19,7 +19,7 @@ jobs:
       ./.github/workflows/test.yaml
 
   build-and-deploy:
-    if: github.repository == 'nodebb-f24-team-pawsitive'
+    if: github.repository == 'CMU-17313Q/nodebb-f24-team-pawsitive'
     needs: lint-and-test
 
     runs-on: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
 
       - name: Set up NodeBB
         run: |
-          ./nodebb setup '{"url":"https://nodebb-pawsitive.azurewebsites.net:443",
+          ./nodebb setup '{"url":"https://pawsitive-p3.azurewebsites.net:443",
             "admin:username": "admin",
             "admin:password": "${{ secrets.ADMIN_PASSWORD }}",
             "admin:password:confirm": "${{ secrets.ADMIN_PASSWORD }}",
@@ -48,7 +48,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'nodebb-pawsitive'
+          app-name: 'nodebb-pawsitive-p3'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E4380FC5C623474596022F669556DDB0 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A317E35705754B6784C3C5028683D6D3 }}
           package: .
