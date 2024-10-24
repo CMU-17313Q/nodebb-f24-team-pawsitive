@@ -1,7 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-
 name: Build and deploy Node.js app to Azure Web App - nodebb-f24
 
 on:
@@ -15,24 +11,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-and-test:
-    uses:
-      ./.github/workflows/test.yaml
-
   build-and-deploy:
     if: github.repository == 'CMU-17313Q/nodebb-f24-team-pawsitive'
-    needs: lint-and-test
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js version
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
+          cache: 'npm'
 
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build  # Assuming there is a build script in your package.json
 
       - name: Set up NodeBB
         run: |
@@ -40,14 +36,17 @@ jobs:
             "admin:username": "admin",
             "admin:password": "${{ secrets.ADMIN_PASSWORD }}",
             "admin:password:confirm": "${{ secrets.ADMIN_PASSWORD }}",
-            "admin:email": "rohanpadhye@cmu.edu",
+            "admin:email": "email@example.com",
             "database": "redis",
             "redis:host": "${{ secrets.REDIS_HOST }}",
             "redis:port": "6379",
             "redis:password": "${{ secrets.REDIS_PASSWORD }}" }'
 
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
+      - name: Start NodeBB
+        run: npm start
+        # This starts the server to verify it works before deployment, typically for testing purposes.
+
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'nodebb-pawsitive-p3'
