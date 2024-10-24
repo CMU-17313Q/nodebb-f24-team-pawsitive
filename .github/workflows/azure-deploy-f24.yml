@@ -11,10 +11,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  "build": "webpack --config webpack.config.js"
   lint-and-test:
       uses:
         ./.github/workflows/test.yaml
-        
+
   build-and-deploy:
     if: github.repository == 'CMU-17313Q/nodebb-f24-team-pawsitive'
     runs-on: ubuntu-latest
