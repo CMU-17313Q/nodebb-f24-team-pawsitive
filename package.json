@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@stryker-mutator/mocha-runner": "^8.6.0"
+  }
+}
