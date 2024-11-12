@@ -583,6 +583,7 @@ describe('API', async () => {
 	}
 
 	function compare(schema, response, method, path, context) {
+		// Check if schema is defined
 		if (!schema || typeof schema !== 'object') {
 			throw new Error(`Schema for ${method} ${path} in context ${context} is undefined or invalid`);
 		}
@@ -590,8 +591,9 @@ describe('API', async () => {
 		let required = [];
 		const additionalProperties = schema.hasOwnProperty('additionalProperties');
 
+		// Ensure `isEnglish` is included in schema properties
 		if (!schema.properties.hasOwnProperty('isEnglish')) {
-			schema.properties.isEnglish = { type: 'boolean' };
+			schema.properties.isEnglish = { type: 'boolean' };  // Adjust type as needed
 			required.push('isEnglish');
 		}
 
