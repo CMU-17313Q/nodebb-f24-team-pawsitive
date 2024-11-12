@@ -583,17 +583,8 @@ describe('API', async () => {
 	}
 
 	function compare(schema, response, method, path, context) {
-		if (!schema || typeof schema !== 'object') {
-			throw new Error(`Schema for ${method} ${path} in context ${context} is undefined or invalid`);
-		}
-
 		let required = [];
 		const additionalProperties = schema.hasOwnProperty('additionalProperties');
-
-		if (!schema.properties.hasOwnProperty('isEnglish')) {
-			schema.properties.isEnglish = { type: 'boolean' };
-			required.push('isEnglish');
-		}
 
 		function flattenAllOf(obj) {
 			return obj.reduce((memo, obj) => {
