@@ -596,7 +596,7 @@ describe('API', async () => {
 
 		// Ensure `isEnglish` is included in schema properties
 		if (!schema.properties.hasOwnProperty('isEnglish')) {
-			schema.properties.isEnglish = { type: 'boolean' };  // Adjust type as needed
+			schema.properties.isEnglish = { type: 'boolean' };
 			required.push('isEnglish');
 		}
 
