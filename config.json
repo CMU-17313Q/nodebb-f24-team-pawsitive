@@ -1,0 +1,12 @@
+{
+    "url": "http://localhost:4567",
+    "secret": "dac35710-f16e-40f8-8253-a08a560b44ce",
+    "database": "redis",
+    "redis": {
+        "host": "127.0.0.1",
+        "port": "6379",
+        "password": "",
+        "database": "0"
+    },
+    "port": "4567"
+}
