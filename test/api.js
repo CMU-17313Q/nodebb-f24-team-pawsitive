@@ -183,6 +183,9 @@ describe('API', async () => {
 			return;
 		}
 
+		await meta.settings.set('user', { requireEmailConfirmation: 'off' });
+
+
 		// Create sample users
 		const adminUid = await user.create({ username: 'admin', password: '123456' });
 		const unprivUid = await user.create({ username: 'unpriv', password: '123456' });
