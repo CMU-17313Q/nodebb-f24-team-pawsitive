@@ -587,10 +587,10 @@ describe('API', async () => {
 		const additionalProperties = schema.hasOwnProperty('additionalProperties');
 
 		// Add "isEnglish" as a required property in your schema check
-		if (!schema.properties.hasOwnProperty("isEnglish")) {
+		if (!schema.properties.hasOwnProperty('isEnglish')) {
 			schema.properties.isEnglish = { type: 'boolean' }; // Adjust type if needed
 			required.push('isEnglish');
-		 }
+		}
 
 		function flattenAllOf(obj) {
 			return obj.reduce((memo, obj) => {
